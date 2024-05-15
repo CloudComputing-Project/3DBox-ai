@@ -6,18 +6,21 @@
 } -->
 
 ## preparing datasets
-python dataset_tool.py \
-create_from_images \
-/path/to/target/tfds \
-/path/to/source/folder \
---resolution 1024
+years=(2008 {2013..2019} {2021..2023})
+for year in "${years[@]}"; do
+  python /project/few-shot-gan/dataset_tool.py \
+  create_from_images \
+  /project/results/data/$year \
+  /project/data/nochain/ne/$year \
+  --resolution 1024
+done
 
 ## training networks
-python run_training.py \
+python /project/few-shot-gan/run_training.py \
 --config=config-ada-sv-flat \
---data-dir=/path/to/datasets \
---dataset-train=path/to/train \
---dataset-eval=path/to/eval \
---resume-pkl-dir=/path/to/pickles \
---total-kimg=30 \
---metrics=None \
+--data-dir=/project/results/data/2008 \
+--dataset-train=/project/results/data/2008/train \
+--dataset-eval=/project/results/data/2008/eval \
+--resume-pkl-dir=/project/results/models \
+--total-kimg=3 \
+--metrics=None
