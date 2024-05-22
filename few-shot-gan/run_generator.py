@@ -21,6 +21,7 @@ import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 session = tf.Session(config=config)
+config.gpu_options.polling_inactive_delay_msecs = 10
 #----------------------------------------------------------------------------
 
 def generate_images(network_pkl, seeds, truncation_psi, layer_toggle, layer_dset, layer_ddir):

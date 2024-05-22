@@ -16,6 +16,7 @@ import shutil
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
+config.gpu_options.polling_inactive_delay_msecs = 10
 session = tf.Session(config=config)
 from tensorflow.python.client import device_lib # pylint: disable=no-name-in-module
 

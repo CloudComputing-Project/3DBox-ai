@@ -18,6 +18,7 @@ import numpy as np
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
+config.gpu_options.polling_inactive_delay_msecs = 10
 session = tf.Session(config=config)
 import PIL.Image
 import dnnlib.tflib as tflib
