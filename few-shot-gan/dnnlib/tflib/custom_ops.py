@@ -14,6 +14,9 @@ import hashlib
 import tempfile
 import shutil
 import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
 from tensorflow.python.client import device_lib # pylint: disable=no-name-in-module
 
 #----------------------------------------------------------------------------

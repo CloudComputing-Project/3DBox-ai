@@ -16,6 +16,9 @@ import six.moves.queue as Queue # pylint: disable=import-error
 import traceback
 import numpy as np
 import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
 import PIL.Image
 import dnnlib.tflib as tflib
 
