@@ -30,3 +30,5 @@ gpu_executor.cc:991] could not open file to read NUMA node: /sys/bus/pci/devices
 Your kernel may have been built without NUMA support.
 
 ass.cc:1412] (One-time warning): Not using XLA:CPU for cluster because envvar TF_XLA_FLAGS=--tf_xla_cpu_global_jit was not set.  If you want XLA:CPU, either set that envvar, or use experimental_jit_scope to enable XLA:CPU.  To confirm that XLA is active, pass --vmodule=xla_compilation_cache=1 (as a proper command-line flag, not via TF_XLA_FLAGS) or set the envvar XLA_FLAGS=--xla_hlo_profile.
+
+https://atsit.in/176
