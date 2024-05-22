@@ -81,8 +81,8 @@ def run(g_loss, g_loss_kwargs, d_loss, d_loss_kwargs, dataset_train, dataset_eva
     D.scale_func = None
     sched.G_lrate_base = sched.D_lrate_base = lrate_base #0.002
     # TODO: Changed this to 16 to match DiffAug
-    sched.minibatch_size_base = 16
-    sched.minibatch_gpu_base = 4
+    sched.minibatch_size_base = 8 # 16
+    sched.minibatch_gpu_base = 2 # 4
     D_loss.gamma = 10
     metrics = [metric_defaults[x] for x in metrics]
     desc = 'stylegan2'
