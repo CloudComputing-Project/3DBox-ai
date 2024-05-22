@@ -6,11 +6,11 @@
 } -->
 
 ## preparing datasets
-for year in {2005..2013}; do
+for year in {2004..2013}; do
 python /project/few-shot-gan/dataset_tool.py \
 create_from_images \
 /project/results/data/Emma_Watson/$year \
-/project/data/CACD2000/Emma_Watson/$year \
+/project/data/CACD2000/Emma_Watson_crop/$year \
 --resolution 1024
 done
 
