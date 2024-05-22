@@ -6,21 +6,27 @@
 } -->
 
 ## preparing datasets
-years=(2008 {2013..2019} {2021..2023})
-for year in "${years[@]}"; do
-  python /project/few-shot-gan/dataset_tool.py \
-  create_from_images \
-  /project/results/data/$year \
-  /project/data/nochain/ne/$year \
-  --resolution 1024
+for year in {2005..2013}; do
+python /project/few-shot-gan/dataset_tool.py \
+create_from_images \
+/project/results/data/Emma_Watson/$year \
+/project/data/CACD2000/Emma_Watson/$year \
+--resolution 1024
 done
+
 
 ## training networks
 python /project/few-shot-gan/run_training.py \
 --config=config-ada-sv-flat \
---data-dir=/project/results/data/2008 \
---dataset-train=/project/results/data/2008/train \
---dataset-eval=/project/results/data/2008/eval \
---resume-pkl-dir=/project/results/models \
---total-kimg=3 \
+--data-dir=/project/results/data/Emma_Watson/2004 \
+--dataset-train=/project/results/data/Emma_Watson/2004 \
+--dataset-eval=/project/results/data/Emma_Watson/2004 \
+--resume-pkl-dir=/project/models \
+--resume-pkl='gogh-pca-000020.pkl' \
+--total-kimg=9 \
 --metrics=None
+
+gpu_executor.cc:991] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+
+ass.cc:1412] (One-time warning): Not using XLA:CPU for cluster because envvar TF_XLA_FLAGS=--tf_xla_cpu_global_jit was not set.  If you want XLA:CPU, either set that envvar, or use experimental_jit_scope to enable XLA:CPU.  To confirm that XLA is active, pass --vmodule=xla_compilation_cache=1 (as a proper command-line flag, not via TF_XLA_FLAGS) or set the envvar XLA_FLAGS=--xla_hlo_profile.
