@@ -9,18 +9,19 @@
 for year in {2004..2013}; do
 python /project/few-shot-gan/dataset_tool.py \
 create_from_images \
-/project/results/data/Emma_Watson/$year \
-/project/data/CACD2000/Emma_Watson_crop/$year \
---resolution 1024
+/project/data/tfrecords/$year \
+/project/data/crop/$year \
+--resolution 1024 \
+--partition 1
 done
 
 
 ## training networks
 python /project/few-shot-gan/run_training.py \
 --config=config-ada-sv-flat \
---data-dir=/project/results/data/Emma_Watson/2004 \
---dataset-train=/project/results/data/Emma_Watson/2004 \
---dataset-eval=/project/results/data/Emma_Watson/2004 \
+--data-dir=/project/data/tfrecords/2004 \
+--dataset-train=/project/data/tfrecords/2004/train \
+--dataset-eval=/project/data/tfrecords/2004/eval \
 --resume-pkl-dir=/project/models \
 --resume-pkl='gogh-pca-000020.pkl' \
 --total-kimg=9 \
