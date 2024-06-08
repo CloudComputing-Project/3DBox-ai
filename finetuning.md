@@ -7,10 +7,10 @@
 
 ## preparing datasets
 for year in {2004..2013}; do
-python /project/few-shot-gan/dataset_tool.py \
+python /home/janett1005/project/few-shot-gan/dataset_tool.py \
 create_from_images \
-/project/data/tfrecords/$year \
-/project/data/crop/$year \
+/home/janett1005/project/data/tfrecords/$year \
+/home/janett1005/project/data/crop/merge/$year \
 --resolution 1024 \
 --partition 1
 done
@@ -19,12 +19,12 @@ done
 ## training networks
 python /project/few-shot-gan/run_training.py \
 --config=config-ada-sv-flat \
---data-dir=/project/data/tfrecords/2004 \
---dataset-train=/project/data/tfrecords/2004/train \
---dataset-eval=/project/data/tfrecords/2004/eval \
+--data-dir=/project/data/tfrecord \
+--dataset-train=/project/data/tfrecord/train/2004_to_2006 \
+--dataset-eval=/project/data/tfrecord/val/2004_to_2006 \
 --resume-pkl-dir=/project/models \
---resume-pkl='gogh-pca-000020.pkl' \
---total-kimg=9 \
+--resume-pkl='portrait-pca-000020.pkl' \
+--total-kimg=1000 \
 --metrics=None
 
 gpu_executor.cc:991] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
