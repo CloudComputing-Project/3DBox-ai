@@ -24,7 +24,7 @@ python /project/few-shot-gan/run_training.py \
 --dataset-eval=/project/data/tfrecord/val/2004_to_2006 \
 --resume-pkl-dir=/project/models \
 --resume-pkl='portrait-pca-000020.pkl' \
---total-kimg=1000 \
+--total-kimg=12 \
 --metrics=None
 
 gpu_executor.cc:991] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
