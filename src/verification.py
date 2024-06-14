@@ -6,46 +6,47 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-def verification_face(gt_representation, year, model, detector):
+def verification_face(main_image_dir, input_dir, year, model, detector):
     """
 
     """
-    input_dir='data/faces'
-    output_dir=f'data/face/{year}'
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    main_distance=np.inf
+    main_img_name = ''
 
-    with open(f'{input_dir}/{year}_face_representations_{model}.pickle', 'rb') as fr:
-        face_representations = pickle.load(fr)
-
-    gt_face_representations=[]
-    for image_face_idx, face_representation in face_representations.items():
-        result = DeepFace.verify(list(gt_representation), list(map(float, face_representation)),
-                                 detector_backend=detector,
+    for image_name in os.listdir(input_dir):
+        img_dir = os.path.join(input_dir, image_name)
+        result = DeepFace.verify(main_image_dir, img_dir,
+                                 detector_backend='skip',
                                  model_name= model, normalization = "base",
                                  distance_metric = "cosine",
+                                #  enforce_detection=False,
                                  silent=True)
-        if result['verified']:
-            #crop_save_face(image_dir, image_idx, face_idx, face_representation['facial_area']['img2'], output_dir+f'/{year}')
-            #shutil.move(f"{input_dir}/{year}_{detector}_{model}/{image_face_idx}.jpg", output_dir)
-            shutil.copy2(f"{input_dir}/{year}_{detector}_{model}/{image_face_idx}.jpg", f"{output_dir}/{image_face_idx}_{result['distance']:.4f}.jpg")
-            gt_face_representations.append(np.array(face_representation))
+        print(f'{image_name} / {result["distance"]}' )
+        if result['verified'] and result['distance'] < main_distance:
+            main_distance = result['distance']
+            main_img_name = image_name
     
-    return np.mean(gt_face_representations, axis=0)
+    print(f"Year : {year} , main distance : {main_distance}") 
+    return main_img_name
 
-def chain_verification_face(input_image_dir, model, detector):
-    gt_representations = DeepFace.represent(input_image_dir,
-                                            detector_backend=detector,
-                                            normalization='base', model_name=model)
-    gt_representation = list(map(float, gt_representations[0]['embedding']))
+def chain_verification_face(main_img_name, model, detector):
+    output_dir = f'data/represent'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
-    for year in os.listdir('data/original_date_corrected')[::-1]:
-        gt_representation = verification_face(gt_representation, year, model, detector)
+    for year_idx, year in enumerate(os.listdir('data/crop')[::-1]):
+        input_dir=f'data/crop/{year}'
 
+        if year_idx==0:
+            continue
+        else:
+            main_img_name = verification_face(f"{output_dir}/{main_img_name}", input_dir, year, model, detector)
+            shutil.copy2(f'{input_dir}/{main_img_name}', f"{output_dir}/{main_img_name}")
+            
 models=["VGG-Face"]
 detectors=["retinaface"]
-input_image_dir='data/me.jpg'
+main_img_name = '2013_image10_face0.jpg'
 
 for model in models:
     for detector in detectors:
-        chain_verification_face(input_image_dir, model, detector)
+        chain_verification_face(main_img_name, model, detector)
