@@ -11,7 +11,7 @@ cd "$project_dir"
 folders=($(ls -d 20*/))
 
 # 3개 폴더씩 그룹화
-group_size=4
+group_size=5
 
 # 각 그룹을 순회
 for (( i=0; i<${#folders[@]}; i+=group_size )); do
