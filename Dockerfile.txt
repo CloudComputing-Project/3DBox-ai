@@ -1,11 +1,68 @@
-# Copyright (c) 2019, NVIDIA Corporation. All rights reserved.
-# This work is made available under the Nvidia Source Code License-NC.
-# To view a copy of this license, visit
-# https://nvlabs.github.io/stylegan2/license.html
+# Use an official CUDA runtime as a parent image
+FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04
 
-# tensorflow GPU image : ubuntu 기반, 특정 버전의 CUDA, cuDNN도 포함
-FROM tensorflow/tensorflow:1.14.0-gpu-py3
+# Set environment name
+ENV ENV_NAME dualstylegan_env
 
-RUN pip install scipy==1.3.3
-RUN pip install requests==2.22.0
-RUN pip install Pillow==6.2.1
+# Copy environment.yml and install the environment
+COPY environment.yml /
+
+# Install conda packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        wget \
+        bzip2 \
+        ca-certificates \
+        libglib2.0-0 \
+        libxext6 \
+        libsm6 \
+        libxrender1 \
+        git \
+    && rm -rf /var/lib/apt/lists/* 
+
+# Install Miniconda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
+    rm /tmp/miniconda.sh && \
+    /opt/conda/bin/conda clean -tipsy && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc
+
+ENV PATH /opt/conda/bin:$PATH
+
+# Create conda environment
+RUN conda create -n $ENV_NAME python=3.8 && \
+    echo "conda activate $ENV_NAME" > ~/.bashrc
+
+# Activate the environment
+SHELL ["/bin/bash", "--login", "-c"]
+RUN conda activate $ENV_NAME && \
+    conda install pytorch=1.7.1 torchvision=0.8.2 torchaudio=0.7.2 cudatoolkit=10.1 -c pytorch && \
+    conda install -c conda-forge matplotlib=3.3.4 pillow=8.3.1 scikit-image=0.18.1 && \
+    conda install -c anaconda numpy=1.21.0 scipy=1.7.0 && \
+    conda install -c anaconda setuptools=49.6.0 && \
+    conda install -c anaconda python-lmdb=1.2.1 && \
+    conda install -c anaconda certifi=2021.10.8 && \
+    conda install -c anaconda tqdm=4.61.2 && \
+    conda install -c anaconda libgcc-ng=9.3.0 && \
+    conda install -c anaconda libstdcxx-ng=9.3.0 && \
+    conda install -c anaconda libffi=3.2.1 && \
+    conda install -c anaconda libedit=3.1.20191231 && \
+    conda install -c conda-forge faiss=1.7.1 && \
+    conda install -c anaconda python=3.8.3 && \
+    conda install -c anaconda torchaudio && \
+    conda install -c anaconda pytorch==1.7.1 && \
+    conda install -c anaconda cmake==3.21.0 && \
+    conda install -c anaconda ninja==1.10.2 && \
+    conda install -c anaconda opencv-python==4.5.3.56 && \
+    pip install -r /environment.yml
+
+# Set working directory
+WORKDIR /workspace
+
+# Optionally, you can copy the rest of your application's code
+# COPY . .
+
+# Command to run your application or entry point
+CMD ["bash"]

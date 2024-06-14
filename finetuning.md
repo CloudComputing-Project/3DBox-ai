@@ -15,7 +15,7 @@ create_from_images \
 --partition 1
 done
 
-
+python run_generator.py generate-images --network=/path/to/network/pickle --seeds=0-100
 ## training networks
 python /project/few-shot-gan/run_training.py \
 --config=config-ada-sv-flat \
