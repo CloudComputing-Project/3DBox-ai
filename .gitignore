@@ -2,6 +2,7 @@ data/
 models/
 CACD2000/
 private/
+checkpoint/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
