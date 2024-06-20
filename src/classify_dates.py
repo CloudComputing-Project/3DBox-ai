@@ -1,8 +1,62 @@
 import os
 import re
+from datetime import datetime, timezone
+import boto3
+import io
+import json
 from PIL import Image
-import shutil
-from datetime import datetime
+
+def lambda_handler(event, context):
+    try:
+        s3_client = boto3.client('s3')
+        bucketName = event['Records'][0]['s3']['bucket']['name']
+        key = event['Records'][0]['s3']['object']['key']
+        uploadTime = event['Records'][0]['eventTime']
+        uploadYear = datetime.fromisoformat(uploadTime.replace('Z', '')).replace(tzinfo=timezone.utc).year
+        print('메타데이터 준비 완료')
+        
+        # S3에서 이미지 파일 가져오기
+        response = s3_client.get_object(Bucket=bucketName, Key=key)
+        image_content = response['Body'].read()
+        print('이미지 준비 완료')
+        
+        year = classify_images(image_content, key, uploadYear)
+        return {
+            'statusCode': 200,
+            'body': {
+                'Year': year
+            }
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
+        
+def classify_images(image_content, key, uploadYear):
+    """
+    조건 : input이 이미지일 경우만 진행
+    input : 이미지 경로
+    output : 이미지의 촬영 연도(int)
+    
+    이미지 파일명 혹은 이미지 메타데이터 상의 촬영 날짜와 사용자 업로드 날짜가 다른 경우, 전자를 촬영 날짜로 설정
+
+    촬영 날짜 판단 우선 순위
+    1. 이미지 파일명 상의 촬영 일자
+    2. 이미지 메타데이터 상의 촬영일자
+    3. 이미지 업로드 일자
+    """
+    if key.endswith(('.jpg', '.jpeg', '.png')):
+        date_from_filename = extract_date_from_filename(key)
+        date_from_metadata = get_image_date(image_content)
+
+        if date_from_filename != None:
+            return date_from_filename.year
+        elif date_from_metadata:
+            return date_from_metadata.year
+        else:
+            return uploadYear
+    return uploadYear
 
 def extract_date_from_filename(filename):
     """
@@ -26,6 +80,7 @@ def extract_date_from_filename(filename):
         match = re.search(patterns, filename)
         if match==None:
             match = re.match(start_patterns, filename)
+
         if match:
             date_str = match.group(0)
             date_str=date_str.replace("_", "")
@@ -41,13 +96,16 @@ def extract_date_from_filename(filename):
                 continue
     return None
 
-def get_image_date(filepath):
+  
+def get_image_date(image_content):
     """
     이미지 메타 데이터 상의 촬영 날짜 추출
     이미지 메타 데이터가 존재하지 않는 경우, None return
     """
     try:
+        image = Image.open(io.BytesIO(image_content))
         image = Image.open(filepath)
+
         # Exif 태그에서 날짜 추출
         exif_data = image._getexif()
 
@@ -68,44 +126,3 @@ def get_image_date(filepath):
                     return datetime.strptime(datetime_original2, "%Y-%m-%d %H:%M:%S:%f").date()
     except Exception as e:
         print(f"Error reading image data: {e}")
-    return None
-
-def classify_images(input_year):
-    """
-    이미지 파일명 혹은 이미지 메타데이터 상의 촬영 날짜와 사용자 업로드 날짜가 다른 경우, 전자를 촬영 날짜로 설정 후 이미지 이동
-
-    촬영 날짜 판단 우선 순위
-    1. 이미지 파일명 상의 촬영 일자
-    2. 이미지 메타데이터 상의 촬영일자
-    3. 이미지 업로드 일자
-    """
-    input_dir = f'data/original/{input_year}'
-    output_dir = f'data/original_date_corrected'
-
-    images_filename = [filename for filename in os.listdir(input_dir) if filename.endswith(('.jpg', '.jpeg', '.png'))]
-    for filename in images_filename:
-        filepath = os.path.join(input_dir, filename)
-        
-        date_from_filename = extract_date_from_filename(filename)
-        date_from_metadata = get_image_date(filepath)
-
-        if date_from_filename != None:
-            date = date_from_filename
-        elif date_from_metadata:
-            date = date_from_metadata
-        else:
-            date=None
-        
-        if date==None:
-            year_folder = os.path.join(output_dir, str(input_year))
-        else:
-            year_folder = os.path.join(output_dir, str(date.year))
-
-        if not os.path.exists(year_folder):
-            os.makedirs(year_folder)
-        
-        shutil.move(filepath, os.path.join(year_folder, filename))
-
-# 2020, 2021 제외
-for input_year in os.listdir('data/original'): 
-    classify_images(input_year)
