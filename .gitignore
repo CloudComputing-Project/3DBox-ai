@@ -4,8 +4,7 @@ CACD2000/
 private/
 checkpoint/
 results/
-
-
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

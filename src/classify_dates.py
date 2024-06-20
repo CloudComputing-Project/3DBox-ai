@@ -80,7 +80,7 @@ def extract_date_from_filename(filename):
         match = re.search(patterns, filename)
         if match==None:
             match = re.match(start_patterns, filename)
-        
+
         if match:
             date_str = match.group(0)
             date_str=date_str.replace("_", "")
@@ -96,6 +96,7 @@ def extract_date_from_filename(filename):
                 continue
     return None
 
+  
 def get_image_date(image_content):
     """
     이미지 메타 데이터 상의 촬영 날짜 추출
@@ -103,6 +104,8 @@ def get_image_date(image_content):
     """
     try:
         image = Image.open(io.BytesIO(image_content))
+        image = Image.open(filepath)
+
         # Exif 태그에서 날짜 추출
         exif_data = image._getexif()
 
@@ -123,4 +126,3 @@ def get_image_date(image_content):
                     return datetime.strptime(datetime_original2, "%Y-%m-%d %H:%M:%S:%f").date()
     except Exception as e:
         print(f"Error reading image data: {e}")
-    return None
