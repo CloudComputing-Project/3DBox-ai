@@ -2,8 +2,8 @@
 image dropbox에서 GAN을 활용
 사용자가 드롭박스에 저장한 이미지들을 활용해 시간에 따른 사용자의 얼굴 변화를 초상화로 그려 보여주기 위한 기능 구현
 
-model : DualStyleGAN
-data : CACD2000의 EmmaWatson 이미지
+* model : DualStyleGAN
+* data : CACD2000의 EmmaWatson 이미지
 
 ## 필요성
 ![image](https://github.com/CloudComputing-Project/3DBox-ai/assets/81574359/0d72f9e9-9f93-4d66-9ebe-6f26d2f00a30)
