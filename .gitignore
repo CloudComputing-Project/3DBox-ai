@@ -5,6 +5,8 @@ private/
 checkpoint/
 results/
 data/
+DualStyleGAN/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
