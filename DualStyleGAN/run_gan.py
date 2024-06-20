@@ -1,6 +1,6 @@
-import sys
-sys.path.append(".")
-sys.path.append("..")
+# import sys
+# sys.path.append(".")
+# sys.path.append("..")
 
 # import numpy as np
 import torch
@@ -19,16 +19,19 @@ import dlib
 from model.encoder.align_all_parallel import align_face
 import wget, bz2
 
-os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+# os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
+print(f'device : {device}')
+
 # os.chdir('../')
 CODE_DIR = './'
 MODEL_DIR = os.path.join(CODE_DIR, 'checkpoint')
 DATA_DIR = os.path.join( CODE_DIR, 'data')
-device = 'cuda'
 
 # load encoder
 model_path = os.path.join(MODEL_DIR, 'encoder.pt')
-ckpt = torch.load(model_path, map_location='cpu')
+ckpt = torch.load(model_path, map_location=device)
 opts = ckpt['opts']
 opts['checkpoint_path'] = model_path
 opts = Namespace(**opts)
@@ -68,14 +71,19 @@ def createEmbeddingImage(image_path, transform, encoder):
         img_rec = torch.clamp(img_rec.detach(), -1, 1)
     return img_rec
 
-def saveImg(img, img_name):
+def saveImg(img, img_name, result_dir):
     vis = torchvision.utils.make_grid(F.adaptive_avg_pool2d(torch.cat([img], dim=0), 256), 1,1)
     plt.figure(figsize=(3,3),dpi=120)
-    visualize(vis.cpu())
-    plt.show()
-    plt.savefig(f'../results/{img_name}.png')
+    plt.imshow(vis.permute(1, 2, 0).cpu().numpy() * 0.5 + 0.5)
+    plt.axis('off')
+    plt.savefig(os.path.join(result_dir, f'{img_name}.png'), bbox_inches='tight')
+    print(f'{img_name} result 저장 완료')
 
-img_dir = '../data/represent'
-for img_name in os.listdir(img_dir):
-    img_path = f'{img_dir}/{img_name}'
-    saveImg(createEmbeddingImage(img_path, transform, encoder), img_name)
+represents_dir = f'{DATA_DIR}/content/represent'
+result_dir = '../results'
+os.makedirs(result_dir, exist_ok=True)
+for img_name in os.listdir(represents_dir):
+    img_path = os.path.join(represents_dir, img_name)
+
+    print(f'{img_name} gan 시작')
+    saveImg(createEmbeddingImage(img_path, transform, encoder), img_name, result_dir)
