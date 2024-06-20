@@ -5,6 +5,8 @@
   year    = {2020}
 } -->
 
+python3.8 /project/DualStyleGAN/run_gan.py
+
 ## preparing datasets
 for year in {2004..2013}; do
 python /home/janett1005/project/few-shot-gan/dataset_tool.py \
