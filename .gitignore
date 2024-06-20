@@ -3,6 +3,7 @@ models/
 CACD2000/
 private/
 checkpoint/
+results/
 
 
 # Byte-compiled / optimized / DLL files
